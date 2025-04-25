@@ -1,0 +1,77 @@
+.container {
+    background-color: white;
+    border-radius: 0.5rem;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    padding: 1.5rem;
+  }
+  
+  .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+  }
+  
+  .title {
+    font-size: 1.25rem;
+    font-weight: 600;
+  }
+  
+  .select {
+    background-color: #f3f4f6;
+    border: 1px solid #e5e7eb;
+    border-radius: 0.375rem;
+    padding: 0.25rem 0.75rem;
+    font-size: 0.875rem;
+  }
+  
+  .chartContainer {
+    height: 16rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #f9fafb;
+    border-radius: 0.5rem;
+  }
+  
+  .chartIcon {
+    color: #bfdbfe;
+  }
+  
+  .chartText {
+    margin-left: 1rem;
+    color: #6b7280;
+  }
+  
+  .categoriesGrid {
+    margin-top: 1rem;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+  }
+  
+  .categoryItem {
+    text-align: center;
+    padding: 0.5rem 0;
+  }
+  
+  .categoryName {
+    font-size: 0.875rem;
+    color: #6b7280;
+  }
+  
+  .categoryAmount {
+    font-weight: 600;
+  }
+  
+  @media (min-width: 768px) {
+    .categoriesGrid {
+      grid-template-columns: repeat(4, 1fr);
+    }
+  }
+  
+  @media (min-width: 1024px) {
+    .container {
+      grid-column: span 2;
+    }
+  }

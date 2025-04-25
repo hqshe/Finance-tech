@@ -1,0 +1,88 @@
+.card {
+    background-color: #f9fafb;
+    padding: 1rem;
+    border-radius: 0.5rem;
+  }
+  
+  .container {
+    display: flex;
+    align-items: center;
+  }
+  
+  .iconContainer {
+    padding: 0.5rem;
+    border-radius: 9999px;
+    margin-right: 1rem;
+  }
+  
+  .title {
+    color: #6b7280;
+  }
+  
+  .amount {
+    font-size: 1.25rem;
+    font-weight: 600;
+  }
+  
+  .subtitle {
+    font-size: 0.875rem;
+    color: #6b7280;
+  }
+  
+  /* Color variants for icon containers */
+  .colorRed {
+    background-color: #fee2e2;
+  }
+  
+  .colorBlue {
+    background-color: #dbeafe;
+  }
+  
+  .colorGreen {
+    background-color: #d1fae5;
+  }
+  
+  .colorYellow {
+    background-color: #fef3c7;
+  }
+  
+  .colorPurple {
+    background-color: #ede9fe;
+  }
+  
+  .colorPink {
+    background-color: #fce7f3;
+  }
+  
+  .colorIndigo {
+    background-color: #e0e7ff;
+  }
+  
+  /* Color variants for text */
+  .textRed {
+    color: #dc2626;
+  }
+  
+  .textBlue {
+    color: #2563eb;
+  }
+  
+  .textGreen {
+    color: #10b981;
+  }
+  
+  .textYellow {
+    color: #d97706;
+  }
+  
+  .textPurple {
+    color: #7c3aed;
+  }
+  
+  .textPink {
+    color: #db2777;
+  }
+  
+  .textIndigo {
+    color: #4f46e5;
+  }

@@ -1,0 +1,39 @@
+.container {
+    margin-top: 1.5rem;
+    background-color: white;
+    border-radius: 0.5rem;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    padding: 1.5rem;
+  }
+  
+  .title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+  }
+  
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+  }
+  
+  .privatbankIcon {
+    font-weight: 700;
+    color: #2563eb;
+  }
+  
+  .monoIcon {
+    font-weight: 700;
+    color: #10b981;
+  }
+  
+  .plusIcon {
+    color: #4b5563;
+  }
+  
+  @media (min-width: 768px) {
+    .grid {
+      grid-template-columns: repeat(4, 1fr);
+    }
+  }
