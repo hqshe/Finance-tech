@@ -1,0 +1,17 @@
+/* src/styles/FinancialDashboard.module.css */
+
+.dashboard {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 1rem;
+}
+
+@media (min-width: 768px) {
+  .dashboard {
+    padding: 1.5rem;
+  }
+}
