@@ -11,47 +11,59 @@ export default function Login() {
     // Стани для логіну
     const [loginEmail, setLoginEmail] = useState('');
     const [loginPassword, setLoginPassword] = useState('');
+    const [loginLoading, setLoginLoading] = useState(false);
+    
     // Стани для реєстрації
     const [registerName, setRegisterName] = useState('');
     const [registerEmail, setRegisterEmail] = useState('');
     const [registerPassword, setRegisterPassword] = useState('');
     const [registerConfirmPassword, setRegisterConfirmPassword] = useState('');
+    const [registerLoading, setRegisterLoading] = useState(false);
 
-    // Обробник логіну
-const handleLogin = async (e) => {
-    e.preventDefault();
+    // Обробник логіну з підтримкою 2FA
+    const handleLogin = async (e) => {
+        e.preventDefault();
+        setLoginLoading(true);
 
-    try {
-        const res = await fetch('http://localhost:5000/api/login', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                email: loginEmail,
-                password: loginPassword,
-            }),
-        });
+        try {
+            const res = await fetch('http://localhost:5000/api/login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    email: loginEmail,
+                    password: loginPassword,
+                }),
+            });
 
-        // Додаємо перевірку успішності запиту
-        if (res.ok) {
             const data = await res.json();
-            
-            // Можна зберегти токен аутентифікації або інформацію про користувача в localStorage
-            localStorage.setItem('token', data.token); // якщо ваш API повертає токен
-            
-            // Перенаправлення на сторінку Home
-            navigate('/home'); // або інший шлях, залежно від структури маршрутизації
-        } else {
-            // Обробляємо помилку аутентифікації
-            const errorData = await res.json();
-            alert(errorData.message || 'Помилка входу в систему');
+
+            if (res.ok) {
+                // Перевіряємо чи потрібна 2FA
+                if (data.requires2FA) {
+                    // Перенаправляємо на сторінку 2FA з необхідними даними
+                    navigate('/two-factor-auth', {
+                        state: {
+                            tempToken: data.tempToken,
+                            phoneHint: data.phoneHint
+                        }
+                    });
+                } else {
+                    // Звичайний логін без 2FA
+                    localStorage.setItem('token', data.token);
+                    navigate('/home');
+                }
+            } else {
+                alert(data.message || 'Помилка входу в систему');
+            }
+        } catch (error) {
+            console.error('Помилка логіну', error);
+            alert('Сталася помилка під час з\'єднання з сервером');
+        } finally {
+            setLoginLoading(false);
         }
-    } catch (error) {
-        console.error('Помилка логіну', error);
-        alert('Сталася помилка під час з\'єднання з сервером');
-    }
-};
+    };
 
     // Обробник реєстрації
     const handleRegister = async (e) => {
@@ -62,8 +74,10 @@ const handleLogin = async (e) => {
             return;
         }
 
+        setRegisterLoading(true);
+
         try {
-            const res = await fetch('http://localhost:5000/api/register', { // <- заміни шлях якщо інший
+            const res = await fetch('http://localhost:5000/api/register', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -76,16 +90,24 @@ const handleLogin = async (e) => {
             });
 
             const data = await res.json();
-            console.log(data);
 
             if (res.ok) {
-                alert('Реєстрація успішна!');
+                alert('Реєстрація успішна! Тепер ви можете увійти в систему.');
                 setIsActive(false); // Переключаємо на форму логіну
+                
+                // Очищуємо поля реєстрації
+                setRegisterName('');
+                setRegisterEmail('');
+                setRegisterPassword('');
+                setRegisterConfirmPassword('');
             } else {
                 alert(data.message || 'Помилка при реєстрації');
             }
         } catch (error) {
             console.error('Помилка реєстрації', error);
+            alert('Сталася помилка під час з\'єднання з сервером');
+        } finally {
+            setRegisterLoading(false);
         }
     };
 
@@ -101,6 +123,7 @@ const handleLogin = async (e) => {
                             required
                             value={loginEmail}
                             onChange={(e) => setLoginEmail(e.target.value)}
+                            disabled={loginLoading}
                         />
                     </div>
                     <div>
@@ -110,12 +133,19 @@ const handleLogin = async (e) => {
                             required
                             value={loginPassword}
                             onChange={(e) => setLoginPassword(e.target.value)}
+                            disabled={loginLoading}
                         />
                     </div>
                     <div className={LoginCss.forgotLink}>
                         <a href="#">Forgot password?</a>
                     </div>
-                    <button type="submit" className={LoginCss.btn}>Login</button>
+                    <button 
+                        type="submit" 
+                        className={`${LoginCss.btn} ${loginLoading ? LoginCss.loading : ''}`}
+                        disabled={loginLoading}
+                    >
+                        {loginLoading ? 'Входимо...' : 'Login'}
+                    </button>
                     <p>or login with social platforms</p>
                     <div className={LoginCss.socialIcons}>
                         <a href="#"><BsGithub /></a>
@@ -135,6 +165,7 @@ const handleLogin = async (e) => {
                             required
                             value={registerName}
                             onChange={(e) => setRegisterName(e.target.value)}
+                            disabled={registerLoading}
                         />
                     </div>
                     <div>
@@ -144,6 +175,7 @@ const handleLogin = async (e) => {
                             required
                             value={registerEmail}
                             onChange={(e) => setRegisterEmail(e.target.value)}
+                            disabled={registerLoading}
                         />
                     </div>
                     <div>
@@ -153,6 +185,7 @@ const handleLogin = async (e) => {
                             required
                             value={registerPassword}
                             onChange={(e) => setRegisterPassword(e.target.value)}
+                            disabled={registerLoading}
                         />
                     </div>
                     <div>
@@ -162,9 +195,16 @@ const handleLogin = async (e) => {
                             required
                             value={registerConfirmPassword}
                             onChange={(e) => setRegisterConfirmPassword(e.target.value)}
+                            disabled={registerLoading}
                         />
                     </div>
-                    <button type="submit" className={LoginCss.btn}>Register</button>
+                    <button 
+                        type="submit" 
+                        className={`${LoginCss.btn} ${registerLoading ? LoginCss.loading : ''}`}
+                        disabled={registerLoading}
+                    >
+                        {registerLoading ? 'Реєструємо...' : 'Register'}
+                    </button>
                     <p>or sign up with social platforms</p>
                     <div className={LoginCss.socialIcons}>
                         <a href="#"><BsGithub /></a>

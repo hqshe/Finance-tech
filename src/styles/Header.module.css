@@ -38,33 +38,7 @@
     color: #2563eb;
     margin-left: 0.5rem;
   }
-  
-  .navContainer {
-    display: none;
-  }
-  
-  .nav {
-    display: flex;
-  }
-  
-  .navLink {
-    color: #4b5563;
-    margin-left: 1.5rem;
-    text-decoration: none;
-    transition: color 0.2s;
-  }
-  
-  .navLink:hover {
-    color: #2563eb;
-  }
-  
-  .navLinkActive {
-    color: #2563eb;
-    font-weight: 500;
-    margin-left: 1.5rem;
-    text-decoration: none;
-  }
-  
+
   .userActions {
     display: flex;
     align-items: center;
@@ -81,6 +55,9 @@
   }
   
   .iconButton:hover {
+    color: #2563eb;
+  }
+  .iconButton.active{
     color: #2563eb;
   }
   @media (min-width: 768px) {

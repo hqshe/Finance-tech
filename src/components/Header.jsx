@@ -1,8 +1,12 @@
 import React from 'react';
 import { Bell, User, Menu, CreditCard } from 'lucide-react';
 import styles from '../styles/Header.module.css';
+import { Link, useLocation } from 'react-router-dom'; // Використовуємо react-router-dom для визначення шляху
 
 const Header = () => {
+  const location = useLocation(); // Отримуємо об'єкт локації
+  const isProfilePage = location.pathname === '/profile'; // Перевіряємо, чи знаходимось на сторінці профілю
+
   return (
     <header className={styles.header}>
       <div className={styles.container}>
@@ -10,27 +14,20 @@ const Header = () => {
           <Menu className={styles.menuIcon} size={24} />
           <div className={styles.logoWrapper}>
             <CreditCard className={styles.logo} size={28} />
-            <h1 className={styles.title}>TechFinance</h1>
+            <a href="/home" className={styles.title}>TechFinance</a>
           </div>
-        </div>
-        
-        <div className={styles.navContainer}>
-          <nav className={styles.nav}>
-            <a href="#" className={styles.navLinkActive}>Головна</a>
-            <a href="#" className={styles.navLink}>Транзакції</a>
-            <a href="#" className={styles.navLink}>Аналітика</a>
-            <a href="#" className={styles.navLink}>Бюджет</a>
-            <a href="#" className={styles.navLink}>Платежі</a>
-          </nav>
         </div>
         
         <div className={styles.userActions}>
           <button className={styles.iconButton}>
             <Bell size={20} />
           </button>
-          <button className={styles.iconButton}>
+          <Link
+            to="/profile"
+            className={`${styles.iconButton} ${isProfilePage ? styles.active : ''}`}
+          >
             <User size={20} />
-          </button>
+          </Link>
         </div>
       </div>
     </header>
