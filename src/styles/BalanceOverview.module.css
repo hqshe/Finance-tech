@@ -76,3 +76,192 @@
       grid-template-columns: repeat(3, 1fr);
     }
   }
+
+/* Секція аналітики */
+.analyticsSection {
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 24px;
+}
+
+/* Заголовок секції */
+.sectionTitle {
+  font-size: 18px;
+  font-weight: 600;
+  color: #1f2937;
+  margin: 0 0 16px 0;
+  display: flex;
+  align-items: center;
+}
+
+.sectionTitle::before {
+  content: "📊";
+  margin-right: 8px;
+  font-size: 16px;
+}
+
+/* Список категорій */
+.categoriesList {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* Елемент категорії */
+.categoryItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px;
+  background: #f9fafb;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+  transition: all 0.2s ease;
+}
+
+.categoryItem:hover {
+  background: #f3f4f6;
+  border-color: #d1d5db;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+/* Інформація про категорію */
+.categoryInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1;
+}
+
+.categoryName {
+  font-size: 16px;
+  font-weight: 500;
+  color: #1f2937;
+  line-height: 1.2;
+}
+
+.categoryCount {
+  font-size: 14px;
+  color: #6b7280;
+  font-weight: 400;
+}
+
+/* Сума витрат */
+.categoryAmount {
+  font-size: 16px;
+  font-weight: 600;
+  color: #dc2626;
+  text-align: right;
+  white-space: nowrap;
+  margin-left: 16px;
+}
+
+/* Респонсивний дизайн */
+@media (max-width: 768px) {
+  .analyticsSection {
+    padding: 16px;
+    margin-bottom: 16px;
+    border-radius: 8px;
+  }
+  
+  .sectionTitle {
+    font-size: 16px;
+    margin-bottom: 12px;
+  }
+  
+  .categoryItem {
+    padding: 12px;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+  
+  .categoryInfo {
+    width: 100%;
+  }
+  
+  .categoryAmount {
+    margin-left: 0;
+    align-self: flex-end;
+    font-size: 15px;
+  }
+  
+  .categoryName {
+    font-size: 15px;
+  }
+  
+  .categoryCount {
+    font-size: 13px;
+  }
+}
+
+@media (max-width: 480px) {
+  .analyticsSection {
+    padding: 12px;
+  }
+  
+  .categoryItem {
+    padding: 12px 8px;
+  }
+  
+  .sectionTitle {
+    font-size: 15px;
+  }
+  
+  .categoryName {
+    font-size: 14px;
+  }
+  
+  .categoryAmount {
+    font-size: 14px;
+  }
+}
+
+/* Додаткові стилі для покращення UX */
+.categoryItem:first-child {
+  border-left: 4px solid #3b82f6;
+}
+
+.categoryItem:nth-child(2) {
+  border-left: 4px solid #10b981;
+}
+
+.categoryItem:nth-child(3) {
+  border-left: 4px solid #f59e0b;
+}
+
+.categoryItem:nth-child(4) {
+  border-left: 4px solid #8b5cf6;
+}
+
+.categoryItem:nth-child(5) {
+  border-left: 4px solid #ef4444;
+}
+
+/* Анімація появи */
+.categoriesList {
+  animation: fadeInUp 0.3s ease-out;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Стилі для пустого стану */
+.categoriesList:empty::after {
+  content: "Немає даних для відображення";
+  display: block;
+  text-align: center;
+  color: #6b7280;
+  font-style: italic;
+  padding: 20px;
+}

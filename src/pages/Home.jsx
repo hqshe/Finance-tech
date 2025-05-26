@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 
 import Header from '../components/Header';
-import Footer from '../components/Footer';
 import BalanceOverview from '../components/BalanceOverview';
 import FinancialDashboard from '../components/FinancialDashboard';
 import PaymentSystems from '../components/PaymentSystems';
@@ -20,7 +19,6 @@ export default function Home() {
           </PaymentSystems>
         </div>
       </main>
-      <Footer />
     </div>
   );
 }

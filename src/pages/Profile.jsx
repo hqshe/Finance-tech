@@ -1,22 +1,24 @@
+// ProfilePage.jsx
 import React, { useState, useEffect } from 'react';
+import { User, Edit3, Lock, Bell, Camera, X, Check, Settings } from 'lucide-react';
 import styles from '../styles/Profile.module.css';
 import Header from '../components/Header';
-import axios from 'axios';
-import { toast } from 'react-toastify';
-import { UNSAFE_FrameworkContext } from 'react-router-dom';
 
 const API_URL = 'http://localhost:5000/api';
 
 const ProfilePage = () => {
-  // Стан користувача
+  // User state - початково порожній
   const [user, setUser] = useState({
-    userame: '',
+    username: '',
     email: '',
     birthdate: '',
     phone: '',
     location: '',
     twoFactorEnabled: false,
     avatarUrl: '',
+    monthlyBudget: 0,
+    currentSpending: 0,
+    budgetThreshold: 80,
     notificationSettings: {
       monthlyReport: true,
       paymentReminders: true,
@@ -25,62 +27,63 @@ const ProfilePage = () => {
     }
   });
 
-  // Стан завантаження
+  // Loading state
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
 
-  // Стани модальних вікон
+  // Modal states
   const [isEditProfileModalOpen, setIsEditProfileModalOpen] = useState(false);
   const [isChangePasswordModalOpen, setIsChangePasswordModalOpen] = useState(false);
   const [isEditPhotoModalOpen, setIsEditPhotoModalOpen] = useState(false);
 
-  // Стан форми редагування профілю
+  // Form states
   const [profileForm, setProfileForm] = useState({});
-
-  // Стан форми зміни паролю
   const [passwordForm, setPasswordForm] = useState({
     currentPassword: '',
     newPassword: '',
     confirmPassword: ''
   });
-
-  // Стан для завантаження файлу
   const [selectedFile, setSelectedFile] = useState(null);
-  
-  // Токен з локального сховища
-  const getToken = () => {
-    if (typeof window !== 'undefined') {
-      return localStorage.getItem('token');
-    }
-    return null;
-  };
 
-  // Конфігурація для HTTP запитів
-  const config = {
-    headers: {
-      'Authorization': `Bearer ${getToken()}`
-    }
-  };
-
-  // Отримання даних користувача
-  useEffect(() => {
-    const fetchUserData = async () => {
-      try {
-        setLoading(true);
-        const response = await axios.get(`${API_URL}/profile`, config);
-        setUser(response.data);
-        setProfileForm(response.data);
-        setLoading(false);
-      } catch (error) {
-        console.error('Помилка при отриманні даних профілю:', error);
-        toast.error('Не вдалося завантажити дані профілю');
-        setLoading(false);
+  // Функція для завантаження даних користувача
+  const fetchUserProfile = async () => {
+    try {
+      setLoading(true);
+      const token = localStorage.getItem('token');
+      
+      if (!token) {
+        setError('Користувач не авторизований');
+        return;
       }
-    };
 
-    fetchUserData();
+      const response = await fetch(`${API_URL}/users/profile`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (!response.ok) {
+        throw new Error('Помилка при завантаженні даних профілю');
+      }
+
+      const userData = await response.json();
+      setUser(userData);
+    } catch (error) {
+      console.error('Помилка завантаження профілю:', error);
+      setError('Не вдалося завантажити дані профілю');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Завантажуємо дані при монтуванні компонента
+  useEffect(() => {
+    fetchUserProfile();
   }, []);
 
-  // Обробники подій
+  // Event handlers
   const handleProfileFormChange = (e) => {
     const { name, value } = e.target;
     setProfileForm(prev => ({ ...prev, [name]: value }));
@@ -93,329 +96,443 @@ const ProfilePage = () => {
 
   const handleNotificationToggle = async (name) => {
     try {
+      const token = localStorage.getItem('token');
       const updatedSettings = {
         ...user.notificationSettings,
         [name]: !user.notificationSettings[name]
       };
 
-      const response = await axios.put(
-        `${API_URL}/notification-settings`,
-        updatedSettings,
-        config
-      );
+      const response = await fetch('/api/users/notification-settings', {
+        method: 'PUT',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(updatedSettings)
+      });
 
-      setUser(prev => ({
-        ...prev,
-        notificationSettings: response.data.notificationSettings
-      }));
-
-      toast.success('Налаштування повідомлень оновлено');
+      if (response.ok) {
+        setUser(prev => ({
+          ...prev,
+          notificationSettings: updatedSettings
+        }));
+      }
     } catch (error) {
-      console.error('Помилка при оновленні налаштувань повідомлень:', error);
-      toast.error('Не вдалося оновити налаштування повідомлень');
+      console.error('Помилка оновлення налаштувань:', error);
     }
   };
 
-  // Завантаження файлу
   const handleFileChange = (e) => {
     setSelectedFile(e.target.files[0]);
   };
 
-  // Форматування дати народження для відображення
+  const handleBudgetChange = (value) => {
+    const budgetValue = parseFloat(value) || 0;
+    setUser(prev => ({
+      ...prev,
+      monthlyBudget: budgetValue
+    }));
+  };
+
+  const handleThresholdChange = (threshold) => {
+    setUser(prev => ({
+      ...prev,
+      budgetThreshold: threshold
+    }));
+  };
+
   const formatBirthdate = (isoDate) => {
     if (!isoDate) return '';
     const date = new Date(isoDate);
     return `${date.getDate().toString().padStart(2, '0')}.${(date.getMonth() + 1).toString().padStart(2, '0')}.${date.getFullYear()}`;
   };
 
-  // Формування повного шляху до аватара
-  const getFullAvatarUrl = (url) => {
-    if (!url) return null;
-    // Якщо URL вже містить повний домен, повертаємо як є
-    if (url.startsWith('http')) {
-      return url;
-    }
-    // Інакше додаємо базовий URL сервера
-    return `http://localhost:5000${url}`;
-  };
-
-  // Збереження змін профілю
-  const saveProfile = async () => {
-    try {
-      const response = await axios.put(
-        `${API_URL}/profile`,
-        {
-          UNSAFE_FrameworkContextame: profileForm.username,
-          birthdate: profileForm.birthdate,
-          phone: profileForm.phone,
-          location: profileForm.location
-        },
-        config
-      );
-
-      setUser(response.data.user);
-      setIsEditProfileModalOpen(false);
-      toast.success('Профіль успішно оновлено');
-    } catch (error) {
-      console.error('Помилка при оновленні профілю:', error);
-      toast.error('Не вдалося оновити профіль');
-    }
-  };
-
-  // Зміна паролю
-  const changePassword = async () => {
-    const { currentPassword, newPassword, confirmPassword } = passwordForm;
-    
-    if (!currentPassword || !newPassword || !confirmPassword) {
-      toast.error('Будь ласка, заповніть всі поля');
-      return;
-    }
-    
-    if (newPassword !== confirmPassword) {
-      toast.error('Новий пароль і підтвердження не співпадають');
-      return;
-    }
-    
-    try {
-      await axios.put(
-        `${API_URL}/change-password`,
-        {
-          currentPassword,
-          newPassword
-        },
-        config
-      );
-      
-      setIsChangePasswordModalOpen(false);
-      setPasswordForm({
-        currentPassword: '',
-        newPassword: '',
-        confirmPassword: ''
-      });
-      
-      toast.success('Пароль успішно змінено');
-    } catch (error) {
-      console.error('Помилка при зміні пароля:', error);
-      
-      if (error.response && error.response.status === 400) {
-        toast.error(error.response.data.message || 'Невірний поточний пароль');
-      } else {
-        toast.error('Не вдалося змінити пароль');
-      }
-    }
-  };
-
-  // Завантаження фото профілю
-  const uploadProfilePhoto = async () => {
-    if (!selectedFile) {
-      toast.error('Будь ласка, виберіть файл');
-      return;
-    }
-    
-    try {
-      const formData = new FormData();
-      formData.append('avatar', selectedFile);
-      
-      const uploadConfig = {
-        ...config,
-        headers: {
-          ...config.headers,
-          'Content-Type': 'multipart/form-data'
-        }
-      };
-      
-      const response = await axios.post(
-        `${API_URL}/upload-avatar`,
-        formData,
-        uploadConfig
-      );
-      
-      setUser(prev => ({
-        ...prev,
-        avatarUrl: response.data.avatarUrl
-      }));
-      
-      setIsEditPhotoModalOpen(false);
-      setSelectedFile(null);
-      toast.success('Фото профілю успішно оновлено');
-    } catch (error) {
-      console.error('Помилка при завантаженні фото:', error);
-      toast.error('Не вдалося завантажити фото');
-    }
-  };
-
-  // Зміна статусу двофакторної автентифікації
-  const toggleTwoFactor = async () => {
-    try {
-      const response = await axios.put(
-        `${API_URL}/two-factor`,
-        { enabled: !user.twoFactorEnabled },
-        config
-      );
-      
-      setUser(prev => ({
-        ...prev,
-        twoFactorEnabled: response.data.twoFactorEnabled
-      }));
-      
-      toast.success(`Двофакторну автентифікацію ${response.data.twoFactorEnabled ? 'увімкнено' : 'вимкнено'}`);
-    } catch (error) {
-      console.error('Помилка при зміні статусу двофакторної автентифікації:', error);
-      toast.error('Не вдалося змінити налаштування двофакторної автентифікації');
-    }
-  };
-
-  // Генерація ініціалів для аватара
   const getUserInitials = () => {
     if (!user.username) return '';
     return user.username.split(' ').map(n => n[0]).join('').toUpperCase();
   };
 
+  const saveProfile = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      
+      const response = await fetch('/api/users/profile', {
+        method: 'PUT',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(profileForm)
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        setUser(result.user);
+        setIsEditProfileModalOpen(false);
+        setProfileForm({});
+      } else {
+        const error = await response.json();
+        alert(error.message || 'Помилка при збереженні профілю');
+      }
+    } catch (error) {
+      console.error('Помилка збереження профілю:', error);
+      alert('Помилка при збереженні профілю');
+    }
+  };
+
+  const changePassword = async () => {
+    if (passwordForm.newPassword !== passwordForm.confirmPassword) {
+      alert('Паролі не співпадають');
+      return;
+    }
+
+    try {
+      const token = localStorage.getItem('token');
+      
+      const response = await fetch('/api/users/change-password', {
+        method: 'PUT',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          currentPassword: passwordForm.currentPassword,
+          newPassword: passwordForm.newPassword
+        })
+      });
+
+      if (response.ok) {
+        alert('Пароль успішно змінено');
+        setIsChangePasswordModalOpen(false);
+        setPasswordForm({
+          currentPassword: '',
+          newPassword: '',
+          confirmPassword: ''
+        });
+      } else {
+        const error = await response.json();
+        alert(error.message || 'Помилка при зміні пароля');
+      }
+    } catch (error) {
+      console.error('Помилка зміни пароля:', error);
+      alert('Помилка при зміні пароля');
+    }
+  };
+
+  const uploadProfilePhoto = async () => {
+    if (!selectedFile) return;
+
+    try {
+      const token = localStorage.getItem('token');
+      const formData = new FormData();
+      formData.append('avatar', selectedFile);
+
+      const response = await fetch('/api/users/upload-avatar', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        },
+        body: formData
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        setUser(prev => ({
+          ...prev,
+          avatarUrl: result.avatarUrl
+        }));
+        setIsEditPhotoModalOpen(false);
+        setSelectedFile(null);
+      } else {
+        const error = await response.json();
+        alert(error.message || 'Помилка при завантаженні фото');
+      }
+    } catch (error) {
+      console.error('Помилка завантаження фото:', error);
+      alert('Помилка при завантаженні фото');
+    }
+  };
+
+  const toggleTwoFactor = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      
+      const response = await fetch('/api/users/two-factor', {
+        method: 'PUT',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          enabled: !user.twoFactorEnabled
+        })
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        setUser(prev => ({
+          ...prev,
+          twoFactorEnabled: result.twoFactorEnabled
+        }));
+      } else {
+        const error = await response.json();
+        alert(error.message || 'Помилка при зміні налаштувань 2FA');
+      }
+    } catch (error) {
+      console.error('Помилка зміни 2FA:', error);
+      alert('Помилка при зміні налаштувань двофакторної автентифікації');
+    }
+  };
+
+  // Обробка помилок
+  if (error) {
+    return (
+      <div className={styles.profilePage}>
+        <Header />
+        <div className={styles.errorContainer}>
+          <p className={styles.errorText}>{error}</p>
+          <button onClick={fetchUserProfile} className={styles.retryBtn}>
+            Спробувати знову
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   if (loading) {
     return (
-      <div className={styles.pageContainer}>
-        <div className={styles.mainContainer}>
-          <Header />
-          <div className={styles.loadingContainer}>
-            <div className={styles.loadingSpinner}></div>
-            <p>Завантаження даних...</p>
-          </div>
+      <div className={styles.loadingContainer}>
+        <div className={styles.loadingContent}>
+          <div className={styles.spinner}></div>
+          <p className={styles.loadingText}>Завантаження даних...</p>
         </div>
       </div>
     );
   }
 
   return (
+    <div className={styles.profilePage}>
+      <Header />
     <div className={styles.pageContainer}>
-      <div className={styles.mainContainer}>
-        <Header/>
-        
-        {/* Avatar Section */}
-        <div className={styles.card}>
-          <div className={styles.avatarSection}>
-            <div className={styles.avatarContainer}>
-              {user.avatarUrl ? (
-                <img 
-                  src={getFullAvatarUrl(user.avatarUrl)} 
-                  alt={user.username || 'Аватар'} 
-                  className={styles.avatarImage}
-                  onError={(e) => {
-                    console.error('Помилка завантаження зображення:', user.avatarUrl);
-                    e.target.style.display = 'none';
-                    e.target.nextElementSibling.style.display = 'flex';
-                  }}
-                />
-              ) : null}
-              <div className={styles.avatar} style={{ display: user.avatarUrl ? 'none' : 'flex' }}>
-                {getUserInitials()}
+      {/* Main Content */}
+      <div className={styles.mainContent}>
+        <div className={styles.contentGrid}>
+          {/* Left Sidebar - Profile Card */}
+          <div className={styles.sidebar}>
+            <div className={styles.profileCard}>
+              <div className={styles.profileHeader}>
+                <div className={styles.avatarContainer}>
+                  {user.avatarUrl ? (
+                    <img 
+                      src={user.avatarUrl} 
+                      alt={user.username} 
+                      className={styles.avatarImage}
+                    />
+                  ) : (
+                    <div className={styles.avatarPlaceholder}>
+                      {getUserInitials()}
+                    </div>
+                  )}
+                  <button 
+                    onClick={() => setIsEditPhotoModalOpen(true)}
+                    className={styles.editPhotoBtn}
+                  >
+                    <Camera className={styles.cameraIcon} />
+                  </button>
+                </div>
+                <h2 className={styles.userName}>{user.username}</h2>
+                <p className={styles.userEmail}>{user.email}</p>
               </div>
-              <button 
-                className={styles.editPhotoButton}
-                onClick={() => setIsEditPhotoModalOpen(true)}
-              >
-                <svg className={styles.plusIcon} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M12 5V19M5 12H19" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                </svg>
-              </button>
-            </div>
-            <h2 className={styles.userName}>{user.username || 'Користувач'}</h2>
-            <p className={styles.userEmail}>{user.email}</p>
-          </div>
-        </div>
-        
-        {/* Personal Information */}
-        <div className={styles.card}>
-          <div className={styles.sectionHeader}>
-            <h2 className={styles.sectionTitle}>Особиста інформація</h2>
-            <button 
-              className={styles.primaryButton}
-              onClick={() => {
-                setProfileForm({ ...user });
-                setIsEditProfileModalOpen(true);
-              }}
-            >
-              Редагувати профіль
-            </button>
-          </div>
-          
-          <div className={styles.infoGrid}>
-            <InfoItem label="Ім'я та прізвище" value={user.username || '—'} />
-            <InfoItem label="Дата народження" value={user.birthdate ? formatBirthdate(user.birthdate) : '—'} />
-            <InfoItem label="Телефон" value={user.phone || '—'} />
-            <InfoItem label="Email" value={user.email} />
-            <InfoItem label="Локація" value={user.location || '—'} />
-          </div>
-        </div>
-        
-        {/* Security */}
-        <div className={styles.card}>
-          <div className={styles.sectionHeader}>
-            <h2 className={styles.sectionTitle}>Безпека</h2>
-            <div className={styles.securityButtons}>
-              <button 
-                className={styles.primaryButton}
-                onClick={() => setIsChangePasswordModalOpen(true)}
-              >
-                Змінити пароль
-              </button>
+
+              {/* Quick Stats */}
+              <div className={styles.quickStats}>
+                <div className={styles.statItem}>
+                  <span className={styles.statLabel}>Безпека</span>
+                  <span className={`${styles.badge} ${user.twoFactorEnabled ? styles.badgeSuccess : styles.badgeWarning}`}>
+                    {user.twoFactorEnabled ? 'Захищено' : 'Базовий'}
+                  </span>
+                </div>
+                <div className={styles.statItem}>
+                  <span className={styles.statLabel}>Бюджет</span>
+                  <span className={styles.statValue}>₴{user.monthlyBudget || 0}</span>
+                </div>
+              </div>
             </div>
           </div>
-          
-          <div className={styles.infoGrid}>
-            <InfoItem label="Пароль" value="•••••••••••" />
-            <div className={styles.twoFactorItem}>
-              <InfoItem 
-                label="Двофакторна автентифікація" 
-                value={user.twoFactorEnabled ? 'Увімкнено' : 'Вимкнено'} 
-              />
-              <button 
-                className={`${styles.twoFactorToggleButton} ${user.twoFactorEnabled ? styles.twoFactorEnabled : styles.twoFactorDisabled}`}
-                onClick={toggleTwoFactor}
-              >
-                {user.twoFactorEnabled ? 'Вимкнути' : 'Увімкнути'}
-              </button>
+
+          {/* Main Content Area */}
+          <div className={styles.mainArea}>
+            {/* Personal Information */}
+            <div className={styles.section}>
+              <div className={styles.sectionHeader}>
+                <h3 className={styles.sectionTitle}>Особиста інформація</h3>
+                <button 
+                  onClick={() => {
+                    setProfileForm({ ...user });
+                    setIsEditProfileModalOpen(true);
+                  }}
+                  className={styles.editBtn}
+                >
+                  <Edit3 className={styles.editIcon} />
+                  <span>Редагувати</span>
+                </button>
+              </div>
+              <div className={styles.sectionContent}>
+                <div className={styles.infoGrid}>
+                  <InfoItem label="Ім'я та прізвище" value={user.username || '—'} />
+                  <InfoItem label="Дата народження" value={user.birthdate ? formatBirthdate(user.birthdate) : '—'} />
+                  <InfoItem label="Телефон" value={user.phone || '—'} />
+                  <InfoItem label="Email" value={user.email} />
+                  <InfoItem label="Локація" value={user.location || '—'} />
+                </div>
+              </div>
             </div>
-          </div>
-        </div>
-        
-        {/* Notification Settings */}
-        <div className={styles.card}>
-          <div className={styles.sectionHeader}>
-            <h2 className={styles.sectionTitle}>Налаштування повідомлень</h2>
-          </div>
-          
-          <div>
-            <NotificationToggle 
-              label="Щомісячний звіт" 
-              isEnabled={user.notificationSettings?.monthlyReport} 
-              onChange={() => handleNotificationToggle('monthlyReport')} 
-            />
-            <NotificationToggle 
-              label="Нагадування про платежі" 
-              isEnabled={user.notificationSettings?.paymentReminders} 
-              onChange={() => handleNotificationToggle('paymentReminders')} 
-            />
-            <NotificationToggle 
-              label="Перевищення бюджету" 
-              isEnabled={user.notificationSettings?.budgetExceeded} 
-              onChange={() => handleNotificationToggle('budgetExceeded')} 
-            />
-            <NotificationToggle 
-              label="Поради щодо економії" 
-              isEnabled={user.notificationSettings?.savingsTips} 
-              onChange={() => handleNotificationToggle('savingsTips')} 
-            />
+
+            {/* Budget Settings */}
+            <div className={styles.section}>
+              <div className={styles.sectionHeader}>
+                <h3 className={styles.sectionTitle}>Налаштування бюджету</h3>
+              </div>
+              <div className={styles.sectionContent}>
+                <div className={styles.budgetGrid}>
+                  <div className={styles.budgetLeft}>
+                    <div className={styles.budgetInputGroup}>
+                      <label className={styles.inputLabel}>
+                        Місячний бюджет (₴)
+                      </label>
+                      <input 
+                        type="number" 
+                        value={user.monthlyBudget || ''} 
+                        onChange={(e) => handleBudgetChange(e.target.value)}
+                        placeholder="Введіть ваш місячний бюджет"
+                        min="0"
+                        step="100"
+                        className={styles.budgetInput}
+                      />
+                    </div>
+
+                    <div className={styles.budgetStats}>
+                      <div className={styles.budgetStatItem}>
+                        <span className={styles.budgetStatLabel}>Поточні витрати:</span>
+                        <span className={styles.budgetStatValue}>₴{user.currentSpending || 0}</span>
+                      </div>
+                      
+                      {user.monthlyBudget && (
+                        <div className={styles.budgetStatItem}>
+                          <span className={styles.budgetStatLabel}>Залишок бюджету:</span>
+                          <span className={`${styles.budgetStatValue} ${
+                            (user.monthlyBudget - (user.currentSpending || 0)) < 0 
+                              ? styles.budgetNegative 
+                              : styles.budgetPositive
+                          }`}>
+                            ₴{user.monthlyBudget - (user.currentSpending || 0)}
+                          </span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className={styles.budgetRight}>
+                    <h4 className={styles.thresholdTitle}>Попередження про перевищення</h4>
+                    <div className={styles.thresholdOptions}>
+                      {[
+                        { value: 80, label: 'При 80% від бюджету' },
+                        { value: 90, label: 'При 90% від бюджету' },
+                        { value: 100, label: 'При 100% від бюджету' }
+                      ].map((option) => (
+                        <label key={option.value} className={styles.radioOption}>
+                          <input 
+                            type="radio" 
+                            name="budgetThreshold" 
+                            value={option.value}
+                            checked={user.budgetThreshold === option.value}
+                            onChange={(e) => handleThresholdChange(parseInt(e.target.value))}
+                            className={styles.radioInput}
+                          />
+                          <span className={styles.radioLabel}>{option.label}</span>
+                        </label>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Security & Notifications Grid */}
+            <div className={styles.twoColumnGrid}>
+              {/* Security */}
+              <div className={styles.section}>
+                <div className={styles.sectionHeader}>
+                  <h3 className={styles.sectionTitle}>Безпека</h3>
+                  <button 
+                    onClick={() => setIsChangePasswordModalOpen(true)}
+                    className={styles.changePasswordBtn}
+                  >
+                    <Lock className={styles.lockIcon} />
+                    <span>Змінити пароль</span>
+                  </button>
+                </div>
+                <div className={styles.sectionContent}>
+                  <div className={styles.securityContent}>
+                    <InfoItem label="Пароль" value="•••••••••••" />
+                    <div className={styles.twoFactorItem}>
+                      <div className={styles.twoFactorInfo}>
+                        <p className={styles.twoFactorLabel}>Двофакторна автентифікація</p>
+                        <p className={styles.twoFactorValue}>
+                          {user.twoFactorEnabled ? 'Увімкнено' : 'Вимкнено'}
+                        </p>
+                      </div>
+                      <button 
+                        onClick={toggleTwoFactor}
+                        className={`${styles.twoFactorBtn} ${
+                          user.twoFactorEnabled 
+                            ? styles.twoFactorBtnDisable 
+                            : styles.twoFactorBtnEnable
+                        }`}
+                      >
+                        {user.twoFactorEnabled ? 'Вимкнути' : 'Увімкнути'}
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Notification Settings */}
+              <div className={styles.section}>
+                <div className={styles.sectionHeader}>
+                  <h3 className={styles.sectionTitle}>Налаштування повідомлень</h3>
+                </div>
+                <div className={styles.sectionContent}>
+                  <div className={styles.notificationsList}>
+                    {[
+                      { key: 'monthlyReport', label: 'Щомісячний звіт' },
+                      { key: 'paymentReminders', label: 'Нагадування про платежі' },
+                      { key: 'budgetExceeded', label: 'Перевищення бюджету' },
+                      { key: 'savingsTips', label: 'Поради щодо економії' }
+                    ].map((notification) => (
+                      <NotificationToggle 
+                        key={notification.key}
+                        label={notification.label} 
+                        isEnabled={user.notificationSettings?.[notification.key] || false} 
+                        onChange={() => handleNotificationToggle(notification.key)} 
+                      />
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
-      
-      {/* Edit Profile Modal */}
+      </div>
+
+      {/* Modals */}
       {isEditProfileModalOpen && (
         <Modal 
           title="Редагувати профіль" 
           onClose={() => setIsEditProfileModalOpen(false)}
         >
-          <div className={styles.formContainer}>
+          <div className={styles.modalForm}>
             <FormField 
               label="Ім'я та прізвище" 
               name="username" 
@@ -456,14 +573,14 @@ const ProfilePage = () => {
           
           <div className={styles.modalActions}>
             <button 
-              className={styles.secondaryButton}
               onClick={() => setIsEditProfileModalOpen(false)}
+              className={styles.cancelBtn}
             >
               Скасувати
             </button>
             <button 
-              className={styles.primaryButton}
               onClick={saveProfile}
+              className={styles.saveBtn}
             >
               Зберегти зміни
             </button>
@@ -471,13 +588,12 @@ const ProfilePage = () => {
         </Modal>
       )}
       
-      {/* Change Password Modal */}
       {isChangePasswordModalOpen && (
         <Modal 
           title="Змінити пароль" 
           onClose={() => setIsChangePasswordModalOpen(false)}
         >
-          <div className={styles.formContainer}>
+          <div className={styles.modalForm}>
             <FormField 
               label="Поточний пароль" 
               name="currentPassword" 
@@ -503,14 +619,14 @@ const ProfilePage = () => {
           
           <div className={styles.modalActions}>
             <button 
-              className={styles.secondaryButton}
               onClick={() => setIsChangePasswordModalOpen(false)}
+              className={styles.cancelBtn}
             >
               Скасувати
             </button>
             <button 
-              className={styles.primaryButton}
               onClick={changePassword}
+              className={styles.saveBtn}
             >
               Зберегти новий пароль
             </button>
@@ -518,43 +634,44 @@ const ProfilePage = () => {
         </Modal>
       )}
       
-      {/* Edit Photo Modal */}
       {isEditPhotoModalOpen && (
         <Modal 
           title="Змінити фото профілю" 
           onClose={() => setIsEditPhotoModalOpen(false)}
         >
-          <div className={styles.fileUploadContainer}>
-            <label className={styles.fieldLabel}>
-              Завантажити нове фото
-            </label>
-            <input 
-              type="file" 
-              className={styles.fileInput}
-              accept="image/*" 
-              onChange={handleFileChange}
-            />
-            {selectedFile && (
-              <p className={styles.selectedFileName}>
-                Вибрано: {selectedFile.name}
-              </p>
-            )}
+          <div className={styles.modalForm}>
+            <div className={styles.fileUploadGroup}>
+              <label className={styles.inputLabel}>
+                Завантажити нове фото
+              </label>
+              <input 
+                type="file" 
+                accept="image/*" 
+                onChange={handleFileChange}
+                className={styles.fileInput}
+              />
+              {selectedFile && (
+                <p className={styles.fileSelectedText}>
+                  Вибрано: {selectedFile.name}
+                </p>
+              )}
+            </div>
           </div>
           
           <div className={styles.modalActions}>
             <button 
-              className={styles.secondaryButton}
               onClick={() => {
                 setIsEditPhotoModalOpen(false);
                 setSelectedFile(null);
               }}
+              className={styles.cancelBtn}
             >
               Скасувати
             </button>
             <button 
-              className={styles.primaryButton}
               onClick={uploadProfilePhoto}
               disabled={!selectedFile}
+              className={`${styles.saveBtn} ${!selectedFile ? styles.saveBtn_disabled : ''}`}
             >
               Зберегти фото
             </button>
@@ -565,7 +682,7 @@ const ProfilePage = () => {
   );
 };
 
-// Компонент для відображення інформації
+// Component for displaying information
 const InfoItem = ({ label, value }) => (
   <div className={styles.infoItem}>
     <p className={styles.infoLabel}>{label}</p>
@@ -573,56 +690,52 @@ const InfoItem = ({ label, value }) => (
   </div>
 );
 
-// Компонент перемикача сповіщень
+// Notification toggle component
 const NotificationToggle = ({ label, isEnabled, onChange }) => (
-  <div className={styles.notificationToggle}>
-    <span className={styles.toggleLabel}>{label}</span>
-    <label className={styles.toggleSwitch}>
-      <input 
-        type="checkbox" 
-        className={styles.toggleInput} 
-        checked={isEnabled}
-        onChange={onChange}
-      />
-      <span className={`${styles.toggleSlider} ${isEnabled ? styles.toggleSliderActive : ''}`}>
-        <span className={`${styles.toggleSliderKnob} ${isEnabled ? styles.toggleSliderKnobActive : ''}`}></span>
-      </span>
-    </label>
+  <div className={styles.notificationItem}>
+    <span className={styles.notificationLabel}>{label}</span>
+    <button
+      onClick={onChange}
+      className={`${styles.toggle} ${isEnabled ? styles.toggleEnabled : styles.toggleDisabled}`}
+    >
+      <span className={`${styles.toggleSlider} ${isEnabled ? styles.toggleSliderActive : ''}`} />
+    </button>
   </div>
 );
 
-// Компонент поля форми
+// Form field component
 const FormField = ({ label, name, type, value, onChange, disabled = false }) => (
   <div className={styles.formField}>
-    <label htmlFor={name} className={styles.fieldLabel}>
+    <label htmlFor={name} className={styles.inputLabel}>
       {label}
     </label>
     <input 
       type={type} 
       id={name}
       name={name}
-      className={`${styles.fieldInput} ${disabled ? styles.fieldInputDisabled : ''}`}
       value={value} 
       onChange={onChange}
       disabled={disabled}
+      className={`${styles.input} ${disabled ? styles.inputDisabled : ''}`}
     />
   </div>
 );
 
-// Компонент модального вікна
+// Modal component
 const Modal = ({ title, children, onClose }) => {
   return (
     <div className={styles.modalOverlay}>
-      <div className={styles.modalContainer}>
+      <div className={styles.modal}>
         <div className={styles.modalHeader}>
           <h3 className={styles.modalTitle}>{title}</h3>
-          <button onClick={onClose} className={styles.modalCloseButton}>
-            <svg className={styles.closeIcon} fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-            </svg>
+          <button 
+            onClick={onClose} 
+            className={styles.modalCloseBtn}
+          >
+            <X className={styles.closeIcon} />
           </button>
         </div>
-        <div className={styles.modalContent}>
+        <div className={styles.modalBody}>
           {children}
         </div>
       </div>

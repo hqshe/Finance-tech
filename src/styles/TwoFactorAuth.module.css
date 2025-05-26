@@ -4,29 +4,30 @@
   align-items: center;
   justify-content: center;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  padding: 20px;
+  padding: 40px;
 }
 
 .card {
   background: white;
-  border-radius: 20px;
-  padding: 40px;
-  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
-  max-width: 450px;
+  border-radius: 16px;
+  padding: 48px 56px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+  max-width: 520px;
   width: 100%;
   text-align: center;
+  position: relative;
 }
 
 .header {
-  margin-bottom: 30px;
+  margin-bottom: 40px;
 }
 
 .icon {
-  width: 60px;
-  height: 60px;
-  margin: 0 auto 20px;
+  width: 72px;
+  height: 72px;
+  margin: 0 auto 24px;
   background: linear-gradient(135deg, #667eea, #764ba2);
-  border-radius: 50%;
+  border-radius: 16px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -34,55 +35,65 @@
 }
 
 .icon svg {
-  width: 30px;
-  height: 30px;
+  width: 36px;
+  height: 36px;
 }
 
 .title {
-  font-size: 24px;
+  font-size: 28px;
   font-weight: 700;
   color: #2d3748;
-  margin: 0 0 10px 0;
+  margin: 0 0 16px 0;
+  letter-spacing: -0.5px;
 }
 
 .subtitle {
   font-size: 16px;
   color: #718096;
   margin: 0;
-  line-height: 1.5;
+  line-height: 1.6;
+  max-width: 380px;
+  margin: 0 auto;
 }
 
 .form {
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 32px;
 }
 
 .codeInputs {
   display: flex;
-  gap: 12px;
+  gap: 16px;
   justify-content: center;
-  margin: 20px 0;
+  margin: 32px 0;
 }
 
 .codeInput {
-  width: 50px;
-  height: 60px;
+  width: 64px;
+  height: 72px;
   border: 2px solid #e2e8f0;
   border-radius: 12px;
   text-align: center;
-  font-size: 24px;
+  font-size: 28px;
   font-weight: 600;
   color: #2d3748;
-  background: #f7fafc;
-  transition: all 0.2s ease;
+  background: #f8fafc;
+  transition: all 0.3s ease;
   outline: none;
+  font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Roboto Mono', monospace;
 }
 
 .codeInput:focus {
   border-color: #667eea;
   background: white;
-  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+  box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+  transform: scale(1.05);
+}
+
+.codeInput:hover:not(:focus) {
+  border-color: #cbd5e0;
+  background: white;
 }
 
 .codeInput.error {
@@ -93,25 +104,28 @@
 .errorMessage {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
   color: #e53e3e;
-  font-size: 14px;
-  padding: 12px;
+  font-size: 15px;
+  font-weight: 500;
+  padding: 16px 20px;
   background: #fed7d7;
-  border-radius: 8px;
+  border-radius: 12px;
   justify-content: center;
+  border: 1px solid #feb2b2;
 }
 
 .errorMessage svg {
-  width: 16px;
-  height: 16px;
+  width: 18px;
+  height: 18px;
   flex-shrink: 0;
 }
 
 .timer {
-  font-size: 14px;
+  font-size: 15px;
   color: #718096;
-  padding: 10px;
+  padding: 16px;
+  font-weight: 500;
 }
 
 .expired {
@@ -122,7 +136,7 @@
 .actions {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 16px;
 }
 
 .submitButton {
@@ -130,18 +144,23 @@
   color: white;
   border: none;
   border-radius: 12px;
-  padding: 16px 24px;
+  padding: 18px 32px;
   font-size: 16px;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.3s ease;
   position: relative;
   overflow: hidden;
+  min-height: 56px;
 }
 
 .submitButton:hover:not(:disabled) {
   transform: translateY(-2px);
-  box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+  box-shadow: 0 12px 32px rgba(102, 126, 234, 0.4);
+}
+
+.submitButton:active:not(:disabled) {
+  transform: translateY(0);
 }
 
 .submitButton:disabled {
@@ -155,9 +174,9 @@
   position: absolute;
   top: 50%;
   left: 50%;
-  width: 20px;
-  height: 20px;
-  margin: -10px 0 0 -10px;
+  width: 22px;
+  height: 22px;
+  margin: -11px 0 0 -11px;
   border: 2px solid rgba(255, 255, 255, 0.3);
   border-top: 2px solid white;
   border-radius: 50%;
@@ -172,18 +191,20 @@
 .resendButton {
   background: transparent;
   color: #667eea;
-  border: 2px solid #667eea;
+  border: 2px solid #e2e8f0;
   border-radius: 12px;
-  padding: 14px 24px;
-  font-size: 14px;
+  padding: 16px 32px;
+  font-size: 15px;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.3s ease;
+  min-height: 52px;
 }
 
 .resendButton:hover:not(:disabled) {
-  background: #667eea;
-  color: white;
+  background: #f8fafc;
+  border-color: #667eea;
+  color: #667eea;
   transform: translateY(-1px);
 }
 
@@ -198,16 +219,18 @@
   color: #718096;
   border: none;
   border-radius: 12px;
-  padding: 14px 24px;
-  font-size: 14px;
+  padding: 16px 32px;
+  font-size: 15px;
   font-weight: 500;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.3s ease;
+  min-height: 48px;
 }
 
 .backButton:hover:not(:disabled) {
-  color: #2d3748;
+  color: #4a5568;
   background: #f7fafc;
+  transform: translateY(-1px);
 }
 
 .backButton:disabled {
@@ -215,14 +238,40 @@
   cursor: not-allowed;
 }
 
-/* Адаптив для мобільних */
-@media (max-width: 480px) {
+/* Адаптив для планшетів */
+@media (max-width: 768px) {
   .container {
-    padding: 15px;
+    padding: 32px;
   }
   
   .card {
-    padding: 30px 20px;
+    padding: 40px 32px;
+    max-width: 480px;
+  }
+  
+  .codeInputs {
+    gap: 12px;
+  }
+  
+  .codeInput {
+    width: 56px;
+    height: 64px;
+    font-size: 24px;
+  }
+  
+  .title {
+    font-size: 24px;
+  }
+}
+
+/* Адаптив для мобільних */
+@media (max-width: 480px) {
+  .container {
+    padding: 20px;
+  }
+  
+  .card {
+    padding: 32px 24px;
   }
   
   .codeInputs {
@@ -230,16 +279,26 @@
   }
   
   .codeInput {
-    width: 40px;
-    height: 50px;
+    width: 48px;
+    height: 56px;
     font-size: 20px;
   }
   
   .title {
-    font-size: 20px;
+    font-size: 22px;
   }
   
   .subtitle {
-    font-size: 14px;
+    font-size: 15px;
+  }
+  
+  .icon {
+    width: 64px;
+    height: 64px;
+  }
+  
+  .icon svg {
+    width: 32px;
+    height: 32px;
   }
 }

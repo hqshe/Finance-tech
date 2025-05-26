@@ -129,7 +129,7 @@ const RecentTransactions = ({ selectedPeriod }) => {
     );
     
     // Беремо тільки 5 останніх транзакцій для відображення
-    const recentTransactions = sortedTransactions.slice(0, 5);
+    const recentTransactions = sortedTransactions.slice(0, 10);
     
     setDisplayedTransactions(recentTransactions);
   };
@@ -184,9 +184,6 @@ const RecentTransactions = ({ selectedPeriod }) => {
     <div className={styles.container}>
       <div className={styles.header}>
         <h2 className={styles.title}>Останні транзакції {getPeriodLabel()}</h2>
-        <a href="#" className={styles.viewAll} onClick={handleViewAll}>
-          Переглянути все
-        </a>
       </div>
       
       <div className={styles.transactionList}>

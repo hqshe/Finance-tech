@@ -45,6 +45,14 @@
   margin-bottom: 1rem;
   max-height: 400px;
   overflow-y: auto;
+
+  /* Ховаємо скролбар */
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none;  /* IE 10+ */
+}
+
+.transactionList::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Opera */
 }
 
 .transactionItem {

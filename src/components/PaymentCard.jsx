@@ -1,16 +1,33 @@
 import React from 'react';
 import styles from '../styles/PaymentSystemCard.module.css';
 
-const PaymentSystemCard = ({ name, isConnected, icon, color }) => {
-  const isAdd = name.includes('Додати');
-  
+const PaymentSystemCard = ({ name, cardNumber, balance }) => {
+  const formatCardNumber = (number) => {
+    if (!number) return '';
+    return '**** **** **** ' + number.slice(-4);
+  };
+
+  const formatBalance = (amount) => {
+    if (amount === undefined || amount === null) return '0.00';
+    return Number(amount).toFixed(2);
+  };
+
   return (
-    <div className={`${styles.card} ${isAdd ? styles.cardAdd : ''}`}>
-      <div className={`${styles.iconContainer} ${isAdd ? styles.iconContainerAdd : styles[`iconContainer${color.charAt(0).toUpperCase() + color.slice(1)}`]}`}>
-        {icon}
+    <div className={styles.card}>
+      <div className={styles.cardHeader}>
+        <h3 className={styles.cardName}>{name}</h3>
+        <div className={styles.cardChip}></div>
       </div>
-      <p className={styles.name}>{name}</p>
-      <p className={styles.status}>{isConnected}</p>
+
+      <p className={styles.cardNumber}>{formatCardNumber(cardNumber)}</p>
+
+      <div className={styles.cardFooter}>
+        <div className={styles.balance}>
+          <span className={styles.balanceLabel}>Баланс</span>
+          <p className={styles.balanceAmount}>{formatBalance(balance)} ₴</p>
+        </div>
+        <span className={styles.cardBrand}>Bank Card</span>
+      </div>
     </div>
   );
 };

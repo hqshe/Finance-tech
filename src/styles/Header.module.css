@@ -79,3 +79,357 @@
       margin-left: 0;
     }
   }
+
+  /* Додайте ці стилі до вашого Header.module.css */
+
+.notificationWrapper {
+  position: relative;
+  display: inline-block;
+}
+
+.notificationBadge {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  background-color: #ef4444;
+  color: white;
+  border-radius: 50%;
+  min-width: 18px;
+  height: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 1;
+  padding: 0 4px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  border: 2px solid white;
+  z-index: 10;
+}
+
+.notificationBadge:empty {
+  display: none;
+}
+
+/* Додайте ці стилі до вашого Header.module.css файлу */
+
+/* Контейнер для повідомлень */
+.notificationContainer {
+  position: relative;
+}
+
+/* Випадаюче меню повідомлень */
+.notificationsDropdown {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  margin-top: 8px;
+  width: 320px;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+  border: 1px solid #e5e7eb;
+  z-index: 50;
+  max-height: 400px;
+  overflow: hidden;
+}
+
+/* Заголовок меню повідомлень */
+.notificationsHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.notificationsTitle {
+  font-weight: 600;
+  color: #1f2937;
+  margin: 0;
+  font-size: 16px;
+}
+
+.closeButton {
+  padding: 4px;
+  background: none;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  color: #6b7280;
+  transition: background-color 0.2s ease;
+}
+
+.closeButton:hover {
+  background-color: #f3f4f6;
+}
+
+/* Список повідомлень */
+.notificationsList {
+  max-height: 320px;
+  overflow-y: auto;
+}
+
+/* Повідомлення про завантаження/порожній список */
+.loadingMessage,
+.emptyMessage {
+  padding: 16px;
+  text-align: center;
+  color: #6b7280;
+  font-size: 14px;
+}
+
+/* Елемент повідомлення */
+.notificationItem {
+  padding: 16px;
+  border-bottom: 1px solid #f3f4f6;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.notificationItem:hover {
+  background-color: #f9fafb;
+}
+
+.notificationItem:last-child {
+  border-bottom: none;
+}
+
+/* Непрочитане повідомлення */
+.notificationItem.unread {
+  background-color: #eff6ff;
+}
+
+.notificationItem.unread:hover {
+  background-color: #dbeafe;
+}
+
+/* Контент повідомлення */
+.notificationContent {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+.notificationIcon {
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.notificationBody {
+  flex: 1;
+  min-width: 0;
+}
+
+/* Верхня частина повідомлення */
+.notificationTop {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.notificationTitle {
+  font-size: 14px;
+  font-weight: 500;
+  color: #1f2937;
+  margin: 0;
+  line-height: 1.4;
+}
+
+.unread .notificationTitle {
+  color: #111827;
+}
+
+/* Кнопка позначити як прочитане */
+.markReadButton {
+  flex-shrink: 0;
+  padding: 4px;
+  background: none;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  color: gray;
+  transition: background-color 0.2s ease;
+}
+
+.markReadButton:hover {
+  background-color: #acffce;
+}
+
+/* Текст повідомлення */
+.notificationMessage {
+  font-size: 12px;
+  color: #4b5563;
+  margin: 0 0 8px 0;
+  line-height: 1.4;
+}
+
+.unread .notificationMessage {
+  color: #374151;
+}
+
+/* Нижня частина повідомлення */
+.notificationBottom {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.notificationDate {
+  font-size: 12px;
+  color: #9ca3af;
+}
+
+/* Точка для непрочитаних */
+.unreadDot {
+  width: 8px;
+  height: 8px;
+  background-color: #3b82f6;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+/* Секція "Завантажити більше" */
+.loadMoreSection {
+  padding: 12px;
+  text-align: center;
+  border-top: 1px solid #f3f4f6;
+}
+
+.loadMoreButton {
+  font-size: 14px;
+  color: #3b82f6;
+  background: none;
+  border: none;
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.loadMoreButton:hover {
+  color: #1d4ed8;
+}
+
+.loadMoreButton:disabled {
+  color: #9ca3af;
+  cursor: not-allowed;
+}
+
+/* Іконки для різних типів повідомлень */
+.iconDanger {
+  color: #ef4444;
+}
+
+.iconWarning {
+  color: #f59e0b;
+}
+
+.iconInfo {
+  color: #3b82f6;
+}
+
+.iconSuccess {
+  color: #10b981;
+}
+
+.iconTip {
+  color: #fbbf24;
+}
+
+.iconDefault {
+  color: #6b7280;
+}
+
+/* Адаптивність для мобільних пристроїв */
+@media (max-width: 768px) {
+  .notificationsDropdown {
+    width: 280px;
+    right: -16px;
+  }
+  
+  .notificationItem {
+    padding: 12px;
+  }
+  
+  .notificationsHeader {
+    padding: 12px;
+  }
+}
+
+/* Покращення скролбару */
+.notificationsList::-webkit-scrollbar {
+  width: 6px;
+}
+
+.notificationsList::-webkit-scrollbar-track {
+  background: #f1f5f9;
+}
+
+.notificationsList::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 3px;
+}
+
+.notificationsList::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+/* Анімація появи меню */
+.notificationsDropdown {
+  animation: slideDown 0.2s ease-out;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.deleteAllButton{
+  padding: 3px 4px;
+  background-color: transparent;
+  color: gray;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  transition: background-color 0.2s ease;
+}
+.deleteButton{
+    padding: 3px 4px;
+  background-color: transparent;
+  color: gray;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  transition: background-color 0.2s ease;
+}
+.deleteAllButton:hover {
+  background-color: #ffb7b7;
+}
+.deleteButton:hover {
+  background-color: #ffb7b7;
+}
+.markAllButton{
+  padding: 3px 4px;
+  background-color: transparent;
+  color: gray;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  transition: background-color 0.2s ease;
+}
+.markAllButton:hover {
+  background-color: #acffce;
+}
